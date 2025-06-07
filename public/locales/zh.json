@@ -66,10 +66,7 @@
     "invalidConfig": "无效的游戏配置",
     "initTimeout": "游戏初始化超时"
   },
-  "gameHistory": {
-    "title": "游戏历史",
-    "noGames": "还没有完成的游戏。玩几局游戏来查看你的历史记录！"
-  },
+
   "leaderboardMessages": {
     "noEntries": "还没有排行榜记录。玩几局游戏来查看排名！"
   }

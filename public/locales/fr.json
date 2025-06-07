@@ -66,10 +66,7 @@
     "invalidConfig": "Configuration de jeu invalide",
     "initTimeout": "Délai d'initialisation du jeu dépassé"
   },
-  "gameHistory": {
-    "title": "Historique des Parties",
-    "noGames": "Aucune partie terminée pour le moment. Jouez quelques parties pour voir votre historique !"
-  },
+
   "leaderboardMessages": {
     "noEntries": "Aucune entrée dans le classement pour le moment. Jouez quelques parties pour voir les classements !"
   }

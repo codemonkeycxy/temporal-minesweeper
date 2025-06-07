@@ -66,10 +66,7 @@
     "invalidConfig": "Configuración de juego inválida",
     "initTimeout": "Tiempo de espera de inicialización del juego agotado"
   },
-  "gameHistory": {
-    "title": "Historial de Juegos",
-    "noGames": "Aún no hay juegos completados. ¡Juega algunos juegos para ver tu historial!"
-  },
+
   "leaderboardMessages": {
     "noEntries": "Aún no hay entradas en la tabla de clasificación. ¡Juega algunos juegos para ver las clasificaciones!"
   }

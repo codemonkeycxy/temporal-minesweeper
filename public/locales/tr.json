@@ -66,10 +66,7 @@
     "invalidConfig": "Geçersiz oyun yapılandırması",
     "initTimeout": "Oyun başlatma zaman aşımına uğradı"
   },
-  "gameHistory": {
-    "title": "Oyun Geçmişi",
-    "noGames": "Henüz tamamlanmış oyun yok. Geçmişinizi görmek için oyunlar oynayın!"
-  },
+
   "leaderboardMessages": {
     "noEntries": "Henüz lider tablosu girişi yok. Sıralamaları görmek için oyunlar oynayın!"
   }

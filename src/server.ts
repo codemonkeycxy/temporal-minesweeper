@@ -16,11 +16,27 @@ app.use(express.static(path.join(__dirname, '../public')));
 let client: Client;
 const LEADERBOARD_WORKFLOW_ID = 'global-leaderboard';
 
-// In-memory storage for completed games (session-based)
-const gameResults: Map<string, GameResult[]> = new Map();
-
 // Track active games with their session IDs
 const activeGames: Map<string, string> = new Map(); // gameId -> sessionId
+
+// Function to save completed game result (now simplified since we rely on Temporal)
+async function saveGameResult(gameResult: GameResult) {
+  // Remove from active games
+  activeGames.delete(gameResult.id);
+  
+  // Send to leaderboard workflow if the game was won
+  if (gameResult.status === 'WON') {
+    try {
+      const leaderboardHandle = client.workflow.getHandle(LEADERBOARD_WORKFLOW_ID);
+      await leaderboardHandle.signal(addGameResultSignal, gameResult);
+      console.log(`Sent game result to leaderboard for session ${gameResult.sessionId}`);
+    } catch (error) {
+      console.error('Error sending game result to leaderboard:', error);
+    }
+  }
+  
+  console.log(`Game ${gameResult.id} completed with status: ${gameResult.status}`);
+}
 
 async function initializeClient() {
   const temporalAddress = process.env.TEMPORAL_ADDRESS || 'localhost:7233';
@@ -51,31 +67,6 @@ async function initializeLeaderboard() {
       throw error;
     }
   }
-}
-
-// Function to save completed game result
-async function saveGameResult(gameResult: GameResult) {
-  const sessionId = gameResult.sessionId;
-  if (!gameResults.has(sessionId)) {
-    gameResults.set(sessionId, []);
-  }
-  gameResults.get(sessionId)!.push(gameResult);
-  
-  // Remove from active games
-  activeGames.delete(gameResult.id);
-  
-  // Send to leaderboard workflow if the game was won
-  if (gameResult.status === 'WON') {
-    try {
-      const leaderboardHandle = client.workflow.getHandle(LEADERBOARD_WORKFLOW_ID);
-      await leaderboardHandle.signal(addGameResultSignal, gameResult);
-      console.log(`Sent game result to leaderboard for session ${sessionId}`);
-    } catch (error) {
-      console.error('Error sending game result to leaderboard:', error);
-    }
-  }
-  
-  console.log(`Saved game result for session ${sessionId}: ${gameResult.status}`);
 }
 
 // Helper function to retry query with delays
@@ -115,9 +106,9 @@ app.post('/api/games', async (req, res) => {
       activeGames.set(gameId, sessionId);
     }
     
-    // Start the workflow
+    // Start the workflow with sessionId
     await client.workflow.start(minesweeperWorkflow, {
-      args: [gameId, config],
+      args: [gameId, config, sessionId],
       taskQueue: 'minesweeper-task-queue',
       workflowId: gameId,
     });
@@ -250,21 +241,7 @@ app.post('/api/games/:gameId/restart', async (req, res) => {
   }
 });
 
-// Get game history for a session
-app.get('/api/sessions/:sessionId/games', (req, res) => {
-  try {
-    const { sessionId } = req.params;
-    const games = gameResults.get(sessionId) || [];
-    
-    // Sort by end time, most recent first
-    const sortedGames = games.sort((a, b) => b.endTime.getTime() - a.endTime.getTime());
-    
-    res.json({ games: sortedGames });
-  } catch (error) {
-    console.error('Error getting game history:', error);
-    res.status(500).json({ error: 'Failed to get game history' });
-  }
-});
+
 
 // Get leaderboard
 app.get('/api/leaderboard', async (req, res) => {

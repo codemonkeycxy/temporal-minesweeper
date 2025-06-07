@@ -30,6 +30,7 @@ export interface GameState {
   endTime?: Date;
   flagsUsed: number;
   cellsRevealed: number;
+  sessionId?: string;
 }
 
 export interface MoveRequest {

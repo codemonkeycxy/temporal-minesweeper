@@ -6,7 +6,7 @@ A modern, full-featured Minesweeper game built with **Temporal Workflows** for s
 
 - 🎮 **Classic Minesweeper gameplay** with modern UI
 - 🏆 **Global leaderboard system** with multiple ranking categories
-- 📊 **Player statistics and game history** across sessions
+- 📊 **Player statistics** across sessions
 - ⚡ **Real-time game state updates** powered by Temporal
 - 🔧 **Configurable difficulty levels** (Beginner, Intermediate, Expert, Custom)
 - ⏱️ **Game timer and detailed statistics**
@@ -108,7 +108,7 @@ npm run worker
 - **Cascading Reveals**: Empty cells automatically reveal connected empty areas
 - **Smart Flagging**: Right-click cycles through unflagged → flagged → unflagged
 - **Game Statistics**: Track time, cells revealed, flags used, and win/loss record
-- **Session Persistence**: Your game history persists across browser sessions
+- **Session Persistence**: Your game state persists across browser sessions
 
 ### Game Modes
 - **Beginner**: 9×9 grid, 10 mines
@@ -134,7 +134,7 @@ The game features a comprehensive leaderboard system with multiple ranking categ
 - Total games played and won
 - Win rate percentage
 - Best times for each difficulty level
-- Game history with detailed results
+
 
 ## 📡 Complete API Reference
 
@@ -187,11 +187,6 @@ Content-Type: application/json
 ```
 
 ### Player & Session Management
-
-#### Get Game History
-```http
-GET /api/sessions/{sessionId}/games
-```
 
 #### Get Player Statistics
 ```http

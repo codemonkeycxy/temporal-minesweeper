@@ -66,10 +66,7 @@
     "invalidConfig": "Ungültige Spielkonfiguration",
     "initTimeout": "Zeitüberschreitung bei Spielinitialisierung"
   },
-  "gameHistory": {
-    "title": "Spielverlauf",
-    "noGames": "Noch keine abgeschlossenen Spiele. Spielen Sie einige Spiele, um Ihren Verlauf zu sehen!"
-  },
+
   "leaderboardMessages": {
     "noEntries": "Noch keine Bestenliste-Einträge. Spielen Sie einige Spiele, um Ranglisten zu sehen!"
   }

@@ -66,10 +66,7 @@
     "invalidConfig": "Invalid game configuration",
     "initTimeout": "Game initialization timed out"
   },
-  "gameHistory": {
-    "title": "Game History",
-    "noGames": "No completed games yet. Play some games to see your history!"
-  },
+
   "leaderboardMessages": {
     "noEntries": "No leaderboard entries yet. Play some games to see rankings!"
   }

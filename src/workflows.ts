@@ -1,4 +1,4 @@
-import { proxyActivities, defineSignal, defineQuery, defineUpdate, setHandler, condition, sleep } from '@temporalio/workflow';
+import { proxyActivities, defineSignal, defineQuery, defineUpdate, setHandler, condition, sleep, upsertSearchAttributes } from '@temporalio/workflow';
 import type * as activities from './activities';
 import { GameState, GameStatus, MoveRequest, GameConfig, GameResult, DifficultyLevel, LeaderboardCategory, LeaderboardEntry, LeaderboardQuery, LeaderboardResponse, PlayerStats } from './types';
 
@@ -23,7 +23,12 @@ export const addGameResultSignal = defineSignal<[GameResult]>('addGameResult');
 export const getLeaderboardQuery = defineQuery<LeaderboardResponse, [LeaderboardQuery]>('getLeaderboard');
 export const getPlayerStatsQuery = defineQuery<PlayerStats | null, [string]>('getPlayerStats');
 
-export async function minesweeperWorkflow(gameId: string, initialConfig: GameConfig): Promise<void> {
+export async function minesweeperWorkflow(gameId: string, initialConfig: GameConfig, sessionId?: string): Promise<void> {
+  // Set search attributes for the workflow - only gameId
+  await upsertSearchAttributes({
+    gameId: [gameId]
+  });
+
   // Initialize game state with a placeholder - will be properly set after board creation
   let gameState: GameState | null = null;
   let lastActivityTime = Date.now();
@@ -54,6 +59,11 @@ export async function minesweeperWorkflow(gameId: string, initialConfig: GameCon
       } else if (action === 'chord') {
         gameState = await chordReveal(gameState, row, col);
       }
+
+      // Set end time if game completed
+      if (gameState.status === GameStatus.WON || gameState.status === GameStatus.LOST) {
+        gameState.endTime = new Date();
+      }
     } catch (error) {
       console.error('Error processing move:', error);
     }
@@ -73,11 +83,12 @@ export async function minesweeperWorkflow(gameId: string, initialConfig: GameCon
       board: newBoard,
       status: GameStatus.NOT_STARTED,
       flagsUsed: 0,
-      cellsRevealed: 0
+      cellsRevealed: 0,
+      sessionId
     };
   });
 
-  setHandler(closeGameSignal, () => {
+  setHandler(closeGameSignal, async () => {
     shouldClose = true;
   });
 
@@ -95,7 +106,8 @@ export async function minesweeperWorkflow(gameId: string, initialConfig: GameCon
         },
         status: GameStatus.NOT_STARTED,
         flagsUsed: 0,
-        cellsRevealed: 0
+        cellsRevealed: 0,
+        sessionId
       };
     }
 
@@ -118,6 +130,11 @@ export async function minesweeperWorkflow(gameId: string, initialConfig: GameCon
       } else if (action === 'chord') {
         gameState = await chordReveal(gameState, row, col);
       }
+
+      // Set end time if game completed
+      if (gameState.status === GameStatus.WON || gameState.status === GameStatus.LOST) {
+        gameState.endTime = new Date();
+      }
     } catch (error) {
       console.error('Error processing move:', error);
     }
@@ -139,8 +156,10 @@ export async function minesweeperWorkflow(gameId: string, initialConfig: GameCon
       board: newBoard,
       status: GameStatus.NOT_STARTED,
       flagsUsed: 0,
-      cellsRevealed: 0
+      cellsRevealed: 0,
+      sessionId
     };
+
     return gameState;
   });
 
@@ -158,7 +177,8 @@ export async function minesweeperWorkflow(gameId: string, initialConfig: GameCon
         },
         status: GameStatus.NOT_STARTED,
         flagsUsed: 0,
-        cellsRevealed: 0
+        cellsRevealed: 0,
+        sessionId
       };
     }
     return gameState;
@@ -171,7 +191,8 @@ export async function minesweeperWorkflow(gameId: string, initialConfig: GameCon
     board: initialBoard,
     status: GameStatus.NOT_STARTED,
     flagsUsed: 0,
-    cellsRevealed: 0
+    cellsRevealed: 0,
+    sessionId // Store sessionId in game state
   };
 
   // Auto-close workflow after 24 hours of inactivity
