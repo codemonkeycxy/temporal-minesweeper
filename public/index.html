@@ -3,123 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Temporal Minesweeper</title>
+    <title data-i18n="app.title">Temporal Minesweeper</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🚩 Temporal Minesweeper</h1>
-            <p>Powered by Temporal Workflows</p>
+            <div class="header-content">
+                <div class="title-section">
+                    <h1>🚩 <span data-i18n="app.title">Temporal Minesweeper</span></h1>
+                    <p data-i18n="app.subtitle">Powered by Temporal Workflows</p>
+                </div>
+                <div class="language-selector">
+                    <select id="language-select" title="Change language">
+                        <option value="en">English</option>
+                        <option value="es">Español</option>
+                        <option value="fr">Français</option>
+                        <option value="de">Deutsch</option>
+                        <option value="zh">中文</option>
+                    </select>
+                </div>
+            </div>
         </header>
 
         <div class="game-controls">
             <div class="difficulty-selector">
-                <label for="difficulty">Difficulty:</label>
+                <label for="difficulty" data-i18n="game.difficulty">Difficulty:</label>
                 <select id="difficulty">
-                    <option value="beginner">Beginner (9x9, 10 mines)</option>
-                    <option value="intermediate">Intermediate (16x16, 40 mines)</option>
-                    <option value="expert">Expert (30x16, 99 mines)</option>
-                    <option value="custom">Custom</option>
+                    <option value="beginner" data-i18n="game.beginner">Beginner (9x9, 10 mines)</option>
+                    <option value="intermediate" data-i18n="game.intermediate">Intermediate (16x16, 40 mines)</option>
+                    <option value="expert" data-i18n="game.expert">Expert (30x16, 99 mines)</option>
+                    <option value="custom" data-i18n="game.custom">Custom</option>
                 </select>
             </div>
 
             <div id="custom-config" class="custom-config" style="display: none;">
                 <div class="config-group">
-                    <label for="width">Width:</label>
+                    <label for="width" data-i18n="game.width">Width:</label>
                     <input type="number" id="width" min="5" max="30" value="9">
                 </div>
                 <div class="config-group">
-                    <label for="height">Height:</label>
+                    <label for="height" data-i18n="game.height">Height:</label>
                     <input type="number" id="height" min="5" max="30" value="9">
                 </div>
                 <div class="config-group">
-                    <label for="mines">Mines:</label>
+                    <label for="mines" data-i18n="game.mines">Mines:</label>
                     <input type="number" id="mines" min="1" max="100" value="10">
                 </div>
             </div>
 
-            <button id="new-game-btn" class="btn btn-primary">New Game</button>
-            <button id="resume-btn" class="btn btn-resume" style="display: none;">Resume Game</button>
-            <button id="restart-btn" class="btn btn-secondary" disabled>Restart</button>
+            <button id="new-game-btn" class="btn btn-primary" data-i18n="game.newGame">New Game</button>
+            <button id="resume-btn" class="btn btn-resume" style="display: none;" data-i18n="game.resumeGame">Resume Game</button>
+            <button id="restart-btn" class="btn btn-secondary" disabled data-i18n="game.restart">Restart</button>
         </div>
 
 
 
         <div class="game-info">
             <div class="info-item">
-                <span class="label">Status:</span>
-                <span id="game-status" class="status">Not Started</span>
+                <span class="label" data-i18n="game.status">Status:</span>
+                <span id="game-status" class="status" data-i18n="game.notStarted">Not Started</span>
             </div>
             <div class="info-item">
-                <span class="label">Mines Left:</span>
+                <span class="label" data-i18n="game.minesLeft">Mines Left:</span>
                 <span id="mines-left">0</span>
             </div>
             <div class="info-item">
-                <span class="label">Time:</span>
+                <span class="label" data-i18n="game.time">Time:</span>
                 <span id="game-time">00:00</span>
             </div>
         </div>
 
         <div id="game-board" class="game-board">
             <div class="no-game">
-                <p>Click "New Game" to start playing!</p>
+                <p data-i18n="game.clickToStart">Click "New Game" to start playing!</p>
             </div>
         </div>
 
         <div class="leaderboard-section">
             <div class="leaderboard-header">
-                <h3>🏆 Leaderboard</h3>
+                <h3 data-i18n="leaderboard.title">🏆 Leaderboard</h3>
                 <div class="leaderboard-controls">
                     <select id="leaderboard-category">
-                        <option value="FASTEST_TIME">Fastest Times</option>
-                        <option value="MOST_WINS">Most Wins</option>
-                        <option value="BEST_WIN_RATE">Best Win Rate</option>
+                        <option value="FASTEST_TIME" data-i18n="leaderboard.fastestTimes">Fastest Times</option>
+                        <option value="MOST_WINS" data-i18n="leaderboard.mostWins">Most Wins</option>
+                        <option value="BEST_WIN_RATE" data-i18n="leaderboard.bestWinRate">Best Win Rate</option>
                     </select>
                     <select id="leaderboard-difficulty">
-                        <option value="">All Difficulties</option>
-                        <option value="BEGINNER">Beginner</option>
-                        <option value="INTERMEDIATE">Intermediate</option>
-                        <option value="EXPERT">Expert</option>
-                        <option value="CUSTOM">Custom</option>
+                        <option value="" data-i18n="leaderboard.allDifficulties">All Difficulties</option>
+                        <option value="BEGINNER" data-i18n="game.beginner">Beginner</option>
+                        <option value="INTERMEDIATE" data-i18n="game.intermediate">Intermediate</option>
+                        <option value="EXPERT" data-i18n="game.expert">Expert</option>
+                        <option value="CUSTOM" data-i18n="game.custom">Custom</option>
                     </select>
-                    <button id="refresh-leaderboard" class="btn btn-small">Refresh</button>
+                    <button id="refresh-leaderboard" class="btn btn-small" data-i18n="leaderboard.refresh">Refresh</button>
                 </div>
             </div>
             <div id="leaderboard-content" class="leaderboard-content">
-                <div class="loading">Loading leaderboard...</div>
+                <div class="loading" data-i18n="leaderboard.loading">Loading leaderboard...</div>
             </div>
         </div>
 
         <div class="instructions">
-            <h3>How to Play</h3>
+            <h3 data-i18n="instructions.howToPlay">How to Play</h3>
             <div class="controls-section">
-                <h4>Desktop Controls:</h4>
+                <h4 data-i18n="instructions.desktopControls">Desktop Controls:</h4>
                 <ul>
-                    <li><strong>Left click</strong> - Reveal a cell</li>
-                    <li><strong>Right click</strong> - Flag/unflag a cell as a mine</li>
-                    <li><strong>Double click</strong> - Mass open adjacent cells (when flags match the number)</li>
+                    <li data-i18n="instructions.leftClick"><strong>Left click</strong> - Reveal a cell</li>
+                    <li data-i18n="instructions.rightClick"><strong>Right click</strong> - Flag/unflag a cell as a mine</li>
+                    <li data-i18n="instructions.doubleClick"><strong>Double click</strong> - Mass open adjacent cells (when flags match the number)</li>
                 </ul>
             </div>
             <div class="controls-section">
-                <h4>Mobile Controls:</h4>
+                <h4 data-i18n="instructions.mobileControls">Mobile Controls:</h4>
                 <ul>
-                    <li><strong>Tap</strong> - Reveal a cell</li>
-                    <li><strong>Long press</strong> - Flag/unflag a cell as a mine</li>
-                    <li><strong>Double tap</strong> - Mass open adjacent cells (when flags match the number)</li>
+                    <li data-i18n="instructions.tap"><strong>Tap</strong> - Reveal a cell</li>
+                    <li data-i18n="instructions.longPress"><strong>Long press</strong> - Flag/unflag a cell as a mine</li>
+                    <li data-i18n="instructions.doubleTap"><strong>Double tap</strong> - Mass open adjacent cells (when flags match the number)</li>
                 </ul>
             </div>
             <div class="game-rules">
-                <h4>Rules:</h4>
+                <h4 data-i18n="instructions.rules">Rules:</h4>
                 <ul>
-                    <li><strong>Goal:</strong> Reveal all cells that don't contain mines</li>
-                    <li><strong>Numbers</strong> show how many mines are adjacent to that cell</li>
-                    <li><strong>Flags</strong> help you mark cells you think contain mines</li>
+                    <li data-i18n="instructions.goal"><strong>Goal:</strong> Reveal all cells that don't contain mines</li>
+                    <li data-i18n="instructions.numbers"><strong>Numbers</strong> show how many mines are adjacent to that cell</li>
+                    <li data-i18n="instructions.flags"><strong>Flags</strong> help you mark cells you think contain mines</li>
                 </ul>
             </div>
         </div>
     </div>
 
+    <script src="i18n.js"></script>
     <script src="script.js"></script>
 </body>
 </html> 

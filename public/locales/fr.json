@@ -1,0 +1,76 @@
+{
+  "app": {
+    "title": "Démineur Temporal",
+    "subtitle": "Alimenté par Temporal Workflows"
+  },
+  "game": {
+    "difficulty": "Difficulté :",
+    "beginner": "Débutant (9x9, 10 mines)",
+    "intermediate": "Intermédiaire (16x16, 40 mines)",
+    "expert": "Expert (30x16, 99 mines)",
+    "custom": "Personnalisé",
+    "width": "Largeur :",
+    "height": "Hauteur :",
+    "mines": "Mines :",
+    "newGame": "Nouvelle Partie",
+    "resumeGame": "Reprendre la Partie",
+    "restart": "Redémarrer",
+    "status": "Statut :",
+    "minesLeft": "Mines Restantes :",
+    "time": "Temps :",
+    "clickToStart": "Cliquez sur \"Nouvelle Partie\" pour commencer à jouer !",
+    "initializing": "Initialisation du jeu...",
+    "gameOver": "Partie Terminée",
+    "youWon": "Vous avez Gagné !",
+    "youLost": "Vous avez Perdu !",
+    "notStarted": "Non Commencé",
+    "inProgress": "En Cours",
+    "won": "Gagné",
+    "lost": "Perdu"
+  },
+  "leaderboard": {
+    "title": "🏆 Classement",
+    "fastestTimes": "Temps les Plus Rapides",
+    "mostWins": "Plus de Victoires",
+    "bestWinRate": "Meilleur Taux de Victoire",
+    "allDifficulties": "Toutes les Difficultés",
+    "refresh": "Actualiser",
+    "loading": "Chargement du classement...",
+    "noData": "Aucune donnée disponible",
+    "rank": "Rang",
+    "player": "Joueur",
+    "value": "Valeur",
+    "games": "Parties"
+  },
+  "instructions": {
+    "howToPlay": "Comment Jouer",
+    "desktopControls": "Contrôles de Bureau :",
+    "leftClick": "Clic gauche - Révéler une case",
+    "rightClick": "Clic droit - Marquer/démarquer une case comme mine",
+    "doubleClick": "Double clic - Ouvrir les cases adjacentes en masse (quand les drapeaux correspondent au nombre)",
+    "mobileControls": "Contrôles Mobiles :",
+    "tap": "Appuyer - Révéler une case",
+    "longPress": "Appui long - Marquer/démarquer une case comme mine",
+    "doubleTap": "Double appui - Ouvrir les cases adjacentes en masse (quand les drapeaux correspondent au nombre)",
+    "rules": "Règles :",
+    "goal": "Objectif : Révéler toutes les cases qui ne contiennent pas de mines",
+    "numbers": "Les nombres indiquent combien de mines sont adjacentes à cette case",
+    "flags": "Les drapeaux vous aident à marquer les cases que vous pensez contenir des mines"
+  },
+  "errors": {
+    "tooManyMines": "Trop de mines pour la taille du plateau !",
+    "failedToCreate": "Échec de la création du jeu :",
+    "failedToRestart": "Échec du redémarrage du jeu :",
+    "failedToMove": "Échec du mouvement :",
+    "gameNotFound": "Jeu non trouvé",
+    "invalidConfig": "Configuration de jeu invalide",
+    "initTimeout": "Délai d'initialisation du jeu dépassé"
+  },
+  "gameHistory": {
+    "title": "Historique des Parties",
+    "noGames": "Aucune partie terminée pour le moment. Jouez quelques parties pour voir votre historique !"
+  },
+  "leaderboardMessages": {
+    "noEntries": "Aucune entrée dans le classement pour le moment. Jouez quelques parties pour voir les classements !"
+  }
+} 

@@ -18,20 +18,57 @@ body {
 }
 
 header {
-    text-align: center;
     margin-bottom: 30px;
     color: white;
 }
 
-header h1 {
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 100%;
+}
+
+.title-section {
+    text-align: center;
+    flex: 1;
+}
+
+.title-section h1 {
     font-size: 2.5rem;
     margin-bottom: 5px;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 
-header p {
+.title-section p {
     font-size: 1.1rem;
     opacity: 0.9;
+}
+
+.language-selector {
+    min-width: 120px;
+}
+
+.language-selector select {
+    padding: 8px 12px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.95);
+    color: #333;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.language-selector select:hover {
+    border-color: rgba(255, 255, 255, 0.6);
+    background: white;
+}
+
+.language-selector select:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
 }
 
 .game-controls {
@@ -331,8 +368,17 @@ header p {
         padding: 1rem;
     }
     
-    header h1 {
+    .header-content {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .title-section h1 {
         font-size: 2rem;
+    }
+    
+    .language-selector {
+        align-self: center;
     }
     
     .game-controls {
@@ -361,7 +407,7 @@ header p {
 }
 
 @media (max-width: 480px) {
-    header h1 {
+    .title-section h1 {
         font-size: 1.8rem;
     }
     

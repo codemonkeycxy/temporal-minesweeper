@@ -18,14 +18,103 @@ class MinesweeperGame {
         this.attachEventListeners();
         this.updateCustomConfigVisibility();
         
-        // Try to resume existing game
-        this.tryResumeGame();
+        // Initialize i18n before trying to resume game
+        this.initializeI18n();
         
-        // Load game history
-        this.loadGameHistory();
+        // Listen for language change events to update dynamic content
+        window.addEventListener('i18n-updated', () => {
+            this.updateDynamicContent();
+        });
+    }
 
-        // Initialize leaderboard
-        this.initializeLeaderboard();
+    async initializeI18n() {
+        try {
+            await window.i18n.initWithPreference();
+            console.log('I18n initialized successfully');
+            
+            // Set the language selector to match the detected/saved language
+            this.languageSelect.value = window.i18n.getCurrentLanguage();
+            
+            // Update select options with translations
+            this.updateSelectOptions();
+            
+            // Now that i18n is ready, load other game components
+            this.tryResumeGame();
+            this.loadGameHistory();
+            this.initializeLeaderboard();
+        } catch (error) {
+            console.error('Failed to initialize i18n:', error);
+            // Fallback: still try to load the game
+            this.tryResumeGame();
+            this.loadGameHistory();
+            this.initializeLeaderboard();
+        }
+    }
+
+    updateSelectOptions() {
+        // Update difficulty selector options
+        const difficultyOptions = this.difficultySelect.querySelectorAll('option');
+        difficultyOptions.forEach(option => {
+            const key = option.getAttribute('data-i18n');
+            if (key) {
+                option.textContent = window.i18n.t(key);
+            }
+        });
+
+        // Update leaderboard category options
+        const categorySelect = document.getElementById('leaderboard-category');
+        if (categorySelect) {
+            const categoryOptions = categorySelect.querySelectorAll('option');
+            categoryOptions.forEach(option => {
+                const key = option.getAttribute('data-i18n');
+                if (key) {
+                    option.textContent = window.i18n.t(key);
+                }
+            });
+        }
+
+        // Update leaderboard difficulty options
+        const leaderboardDifficultySelect = document.getElementById('leaderboard-difficulty');
+        if (leaderboardDifficultySelect) {
+            const difficultyOptions = leaderboardDifficultySelect.querySelectorAll('option');
+            difficultyOptions.forEach(option => {
+                const key = option.getAttribute('data-i18n');
+                if (key) {
+                    option.textContent = window.i18n.t(key);
+                }
+            });
+        }
+    }
+
+    updateDynamicContent() {
+        // Update game history title if it exists
+        const historyContainer = document.getElementById('game-history');
+        if (historyContainer) {
+            const title = historyContainer.querySelector('h3');
+            if (title) {
+                title.textContent = window.i18n.t('gameHistory.title');
+            }
+            
+            // Update "no games" message if it exists
+            const noGamesMsg = historyContainer.querySelector('.no-history');
+            if (noGamesMsg) {
+                noGamesMsg.textContent = window.i18n.t('gameHistory.noGames');
+            }
+        }
+
+        // Update leaderboard loading/no entries messages if visible
+        const leaderboardContent = document.getElementById('leaderboard-content');
+        if (leaderboardContent) {
+            const loading = leaderboardContent.querySelector('.loading');
+            if (loading) {
+                loading.textContent = window.i18n.t('leaderboard.loading');
+            }
+            
+            const noLeaderboard = leaderboardContent.querySelector('.no-leaderboard');
+            if (noLeaderboard) {
+                noLeaderboard.textContent = window.i18n.t('leaderboardMessages.noEntries');
+            }
+        }
     }
 
     initializeElements() {
@@ -40,6 +129,7 @@ class MinesweeperGame {
         this.minesLeft = document.getElementById('mines-left');
         this.gameTime = document.getElementById('game-time');
         this.gameBoard = document.getElementById('game-board');
+        this.languageSelect = document.getElementById('language-select');
     }
 
     attachEventListeners() {
@@ -50,6 +140,20 @@ class MinesweeperGame {
 
         this.newGameBtn.addEventListener('click', () => this.createNewGame());
         this.restartBtn.addEventListener('click', () => this.restartGame());
+
+        // Language selector
+        this.languageSelect.addEventListener('change', async (e) => {
+            const selectedLanguage = e.target.value;
+            const success = await window.i18n.changeLanguage(selectedLanguage);
+            if (success) {
+                // Update any dynamic content that might not be automatically updated
+                if (this.gameState) {
+                    this.updateUI();
+                }
+                // Update option texts in selectors
+                this.updateSelectOptions();
+            }
+        });
 
         // Handle window resize for responsive board sizing
         let resizeTimeout;
@@ -165,7 +269,7 @@ class MinesweeperGame {
             
             // Validate config
             if (config.mineCount >= config.width * config.height) {
-                alert('Too many mines for the board size!');
+                alert(window.i18n.t('errors.tooManyMines'));
                 return;
             }
 
@@ -195,7 +299,7 @@ class MinesweeperGame {
             
         } catch (error) {
             console.error('Error creating game:', error);
-            alert('Failed to create game: ' + error.message);
+            alert(window.i18n.t('errors.failedToCreate') + ' ' + error.message);
         } finally {
             this.newGameBtn.disabled = false;
         }
@@ -233,7 +337,7 @@ class MinesweeperGame {
         }
         
         // If we get here, initialization timed out
-        throw new Error('Game initialization timed out');
+        throw new Error(window.i18n.t('errors.initTimeout'));
     }
 
     async restartGame() {
@@ -266,7 +370,7 @@ class MinesweeperGame {
             
         } catch (error) {
             console.error('Error restarting game:', error);
-            alert('Failed to restart game: ' + error.message);
+            alert(window.i18n.t('errors.failedToRestart') + ' ' + error.message);
         } finally {
             this.restartBtn.disabled = false;
         }
@@ -301,7 +405,7 @@ class MinesweeperGame {
             
         } catch (error) {
             console.error('Error making move:', error);
-            alert('Failed to make move: ' + error.message);
+            alert(window.i18n.t('errors.failedToMove') + ' ' + error.message);
         }
     }
 
@@ -365,9 +469,26 @@ class MinesweeperGame {
     }
 
     updateUI() {
-        // Update status
-        const statusText = this.gameState.status.replace('_', ' ').toLowerCase();
-        this.gameStatus.textContent = statusText.charAt(0).toUpperCase() + statusText.slice(1);
+        // Update status with translation
+        let statusKey = '';
+        switch (this.gameState.status) {
+            case 'NOT_STARTED':
+                statusKey = 'game.notStarted';
+                break;
+            case 'IN_PROGRESS':
+                statusKey = 'game.inProgress';
+                break;
+            case 'WON':
+                statusKey = 'game.won';
+                break;
+            case 'LOST':
+                statusKey = 'game.lost';
+                break;
+            default:
+                statusKey = 'game.notStarted';
+        }
+        
+        this.gameStatus.textContent = window.i18n.t(statusKey);
         this.gameStatus.className = `status ${this.gameState.status.toLowerCase().replace('_', '-')}`;
 
         // Update mines left
@@ -437,7 +558,7 @@ class MinesweeperGame {
         // Check if board is properly initialized
         if (!board.cells || board.cells.length === 0 || !board.cells[0] || board.cells[0].length === 0) {
             // Board not ready yet, show loading message
-            this.gameBoard.innerHTML = '<div class="no-game"><p>Initializing game...</p></div>';
+            this.gameBoard.innerHTML = `<div class="no-game"><p>${window.i18n.t('game.initializing')}</p></div>`;
             return;
         }
         
@@ -670,7 +791,7 @@ class MinesweeperGame {
             historyContainer.className = 'game-history';
             
             const title = document.createElement('h3');
-            title.textContent = 'Game History';
+            title.textContent = window.i18n.t('gameHistory.title');
             historyContainer.appendChild(title);
             
             // Insert after the game board
@@ -685,7 +806,7 @@ class MinesweeperGame {
 
         if (games.length === 0) {
             const noGames = document.createElement('p');
-            noGames.textContent = 'No completed games yet. Play some games to see your history!';
+            noGames.textContent = window.i18n.t('gameHistory.noGames');
             noGames.className = 'no-history';
             historyContainer.appendChild(noGames);
             return;
@@ -760,7 +881,7 @@ class MinesweeperGame {
         const content = document.getElementById('leaderboard-content');
 
         // Show loading state
-        content.innerHTML = '<div class="loading">Loading leaderboard...</div>';
+        content.innerHTML = `<div class="loading">${window.i18n.t('leaderboard.loading')}</div>`;
 
         try {
             const category = categorySelect.value;
@@ -792,7 +913,7 @@ class MinesweeperGame {
         const content = document.getElementById('leaderboard-content');
 
         if (!leaderboard.entries || leaderboard.entries.length === 0) {
-            content.innerHTML = '<div class="no-leaderboard">No leaderboard entries yet. Play some games to see rankings!</div>';
+            content.innerHTML = `<div class="no-leaderboard">${window.i18n.t('leaderboardMessages.noEntries')}</div>`;
             return;
         }
 

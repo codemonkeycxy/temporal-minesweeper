@@ -1,0 +1,76 @@
+{
+  "app": {
+    "title": "Buscaminas Temporal",
+    "subtitle": "Impulsado por Temporal Workflows"
+  },
+  "game": {
+    "difficulty": "Dificultad:",
+    "beginner": "Principiante (9x9, 10 minas)",
+    "intermediate": "Intermedio (16x16, 40 minas)",
+    "expert": "Experto (30x16, 99 minas)",
+    "custom": "Personalizado",
+    "width": "Ancho:",
+    "height": "Alto:",
+    "mines": "Minas:",
+    "newGame": "Nuevo Juego",
+    "resumeGame": "Reanudar Juego",
+    "restart": "Reiniciar",
+    "status": "Estado:",
+    "minesLeft": "Minas Restantes:",
+    "time": "Tiempo:",
+    "clickToStart": "¡Haz clic en \"Nuevo Juego\" para empezar a jugar!",
+    "initializing": "Inicializando juego...",
+    "gameOver": "Juego Terminado",
+    "youWon": "¡Ganaste!",
+    "youLost": "¡Perdiste!",
+    "notStarted": "No Iniciado",
+    "inProgress": "En Progreso",
+    "won": "Ganado",
+    "lost": "Perdido"
+  },
+  "leaderboard": {
+    "title": "🏆 Tabla de Clasificación",
+    "fastestTimes": "Tiempos Más Rápidos",
+    "mostWins": "Más Victorias",
+    "bestWinRate": "Mejor Tasa de Victoria",
+    "allDifficulties": "Todas las Dificultades",
+    "refresh": "Actualizar",
+    "loading": "Cargando tabla de clasificación...",
+    "noData": "No hay datos disponibles",
+    "rank": "Posición",
+    "player": "Jugador",
+    "value": "Valor",
+    "games": "Juegos"
+  },
+  "instructions": {
+    "howToPlay": "Cómo Jugar",
+    "desktopControls": "Controles de Escritorio:",
+    "leftClick": "Clic izquierdo - Revelar una celda",
+    "rightClick": "Clic derecho - Marcar/desmarcar una celda como mina",
+    "doubleClick": "Doble clic - Abrir celdas adyacentes en masa (cuando las banderas coincidan con el número)",
+    "mobileControls": "Controles Móviles:",
+    "tap": "Tocar - Revelar una celda",
+    "longPress": "Presión larga - Marcar/desmarcar una celda como mina",
+    "doubleTap": "Doble toque - Abrir celdas adyacentes en masa (cuando las banderas coincidan con el número)",
+    "rules": "Reglas:",
+    "goal": "Objetivo: Revelar todas las celdas que no contienen minas",
+    "numbers": "Los números muestran cuántas minas están adyacentes a esa celda",
+    "flags": "Las banderas te ayudan a marcar celdas que crees que contienen minas"
+  },
+  "errors": {
+    "tooManyMines": "¡Demasiadas minas para el tamaño del tablero!",
+    "failedToCreate": "Error al crear el juego:",
+    "failedToRestart": "Error al reiniciar el juego:",
+    "failedToMove": "Error al hacer el movimiento:",
+    "gameNotFound": "Juego no encontrado",
+    "invalidConfig": "Configuración de juego inválida",
+    "initTimeout": "Tiempo de espera de inicialización del juego agotado"
+  },
+  "gameHistory": {
+    "title": "Historial de Juegos",
+    "noGames": "Aún no hay juegos completados. ¡Juega algunos juegos para ver tu historial!"
+  },
+  "leaderboardMessages": {
+    "noEntries": "Aún no hay entradas en la tabla de clasificación. ¡Juega algunos juegos para ver las clasificaciones!"
+  }
+} 

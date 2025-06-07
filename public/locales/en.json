@@ -1,0 +1,76 @@
+{
+  "app": {
+    "title": "Temporal Minesweeper",
+    "subtitle": "Powered by Temporal Workflows"
+  },
+  "game": {
+    "difficulty": "Difficulty:",
+    "beginner": "Beginner (9x9, 10 mines)",
+    "intermediate": "Intermediate (16x16, 40 mines)",
+    "expert": "Expert (30x16, 99 mines)",
+    "custom": "Custom",
+    "width": "Width:",
+    "height": "Height:",
+    "mines": "Mines:",
+    "newGame": "New Game",
+    "resumeGame": "Resume Game",
+    "restart": "Restart",
+    "status": "Status:",
+    "minesLeft": "Mines Left:",
+    "time": "Time:",
+    "clickToStart": "Click \"New Game\" to start playing!",
+    "initializing": "Initializing game...",
+    "gameOver": "Game Over",
+    "youWon": "You Won!",
+    "youLost": "You Lost!",
+    "notStarted": "Not Started",
+    "inProgress": "In Progress",
+    "won": "Won",
+    "lost": "Lost"
+  },
+  "leaderboard": {
+    "title": "🏆 Leaderboard",
+    "fastestTimes": "Fastest Times",
+    "mostWins": "Most Wins",
+    "bestWinRate": "Best Win Rate",
+    "allDifficulties": "All Difficulties",
+    "refresh": "Refresh",
+    "loading": "Loading leaderboard...",
+    "noData": "No data available",
+    "rank": "Rank",
+    "player": "Player",
+    "value": "Value",
+    "games": "Games"
+  },
+  "instructions": {
+    "howToPlay": "How to Play",
+    "desktopControls": "Desktop Controls:",
+    "leftClick": "Left click - Reveal a cell",
+    "rightClick": "Right click - Flag/unflag a cell as a mine",
+    "doubleClick": "Double click - Mass open adjacent cells (when flags match the number)",
+    "mobileControls": "Mobile Controls:",
+    "tap": "Tap - Reveal a cell",
+    "longPress": "Long press - Flag/unflag a cell as a mine",
+    "doubleTap": "Double tap - Mass open adjacent cells (when flags match the number)",
+    "rules": "Rules:",
+    "goal": "Goal: Reveal all cells that don't contain mines",
+    "numbers": "Numbers show how many mines are adjacent to that cell",
+    "flags": "Flags help you mark cells you think contain mines"
+  },
+  "errors": {
+    "tooManyMines": "Too many mines for the board size!",
+    "failedToCreate": "Failed to create game:",
+    "failedToRestart": "Failed to restart game:",
+    "failedToMove": "Failed to make move:",
+    "gameNotFound": "Game not found",
+    "invalidConfig": "Invalid game configuration",
+    "initTimeout": "Game initialization timed out"
+  },
+  "gameHistory": {
+    "title": "Game History",
+    "noGames": "No completed games yet. Play some games to see your history!"
+  },
+  "leaderboardMessages": {
+    "noEntries": "No leaderboard entries yet. Play some games to see rankings!"
+  }
+} 

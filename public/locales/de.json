@@ -1,0 +1,76 @@
+{
+  "app": {
+    "title": "Temporal Minesweeper",
+    "subtitle": "Angetrieben von Temporal Workflows"
+  },
+  "game": {
+    "difficulty": "Schwierigkeit:",
+    "beginner": "Anfänger (9x9, 10 Minen)",
+    "intermediate": "Fortgeschritten (16x16, 40 Minen)",
+    "expert": "Experte (30x16, 99 Minen)",
+    "custom": "Benutzerdefiniert",
+    "width": "Breite:",
+    "height": "Höhe:",
+    "mines": "Minen:",
+    "newGame": "Neues Spiel",
+    "resumeGame": "Spiel Fortsetzen",
+    "restart": "Neustart",
+    "status": "Status:",
+    "minesLeft": "Verbleibende Minen:",
+    "time": "Zeit:",
+    "clickToStart": "Klicken Sie auf \"Neues Spiel\", um zu beginnen!",
+    "initializing": "Spiel wird initialisiert...",
+    "gameOver": "Spiel Beendet",
+    "youWon": "Sie haben Gewonnen!",
+    "youLost": "Sie haben Verloren!",
+    "notStarted": "Nicht Gestartet",
+    "inProgress": "Im Gange",
+    "won": "Gewonnen",
+    "lost": "Verloren"
+  },
+  "leaderboard": {
+    "title": "🏆 Bestenliste",
+    "fastestTimes": "Schnellste Zeiten",
+    "mostWins": "Meiste Siege",
+    "bestWinRate": "Beste Gewinnrate",
+    "allDifficulties": "Alle Schwierigkeitsgrade",
+    "refresh": "Aktualisieren",
+    "loading": "Bestenliste wird geladen...",
+    "noData": "Keine Daten verfügbar",
+    "rank": "Rang",
+    "player": "Spieler",
+    "value": "Wert",
+    "games": "Spiele"
+  },
+  "instructions": {
+    "howToPlay": "Spielanleitung",
+    "desktopControls": "Desktop-Steuerung:",
+    "leftClick": "Linksklick - Feld aufdecken",
+    "rightClick": "Rechtsklick - Feld als Mine markieren/entmarkieren",
+    "doubleClick": "Doppelklick - Angrenzende Felder massenweise öffnen (wenn Flaggen der Zahl entsprechen)",
+    "mobileControls": "Mobile Steuerung:",
+    "tap": "Tippen - Feld aufdecken",
+    "longPress": "Langes Drücken - Feld als Mine markieren/entmarkieren",
+    "doubleTap": "Doppeltippen - Angrenzende Felder massenweise öffnen (wenn Flaggen der Zahl entsprechen)",
+    "rules": "Regeln:",
+    "goal": "Ziel: Alle Felder aufdecken, die keine Minen enthalten",
+    "numbers": "Zahlen zeigen, wie viele Minen an dieses Feld angrenzen",
+    "flags": "Flaggen helfen dabei, Felder zu markieren, die Sie für Minen halten"
+  },
+  "errors": {
+    "tooManyMines": "Zu viele Minen für die Spielfeldgröße!",
+    "failedToCreate": "Fehler beim Erstellen des Spiels:",
+    "failedToRestart": "Fehler beim Neustart des Spiels:",
+    "failedToMove": "Fehler beim Ausführen des Zugs:",
+    "gameNotFound": "Spiel nicht gefunden",
+    "invalidConfig": "Ungültige Spielkonfiguration",
+    "initTimeout": "Zeitüberschreitung bei Spielinitialisierung"
+  },
+  "gameHistory": {
+    "title": "Spielverlauf",
+    "noGames": "Noch keine abgeschlossenen Spiele. Spielen Sie einige Spiele, um Ihren Verlauf zu sehen!"
+  },
+  "leaderboardMessages": {
+    "noEntries": "Noch keine Bestenliste-Einträge. Spielen Sie einige Spiele, um Ranglisten zu sehen!"
+  }
+} 
