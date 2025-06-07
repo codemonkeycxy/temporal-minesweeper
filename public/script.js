@@ -6,7 +6,6 @@ class MinesweeperGame {
         this.timerInterval = null;
         
         // Mobile interaction state
-        this.mobileMode = 'reveal'; // 'reveal' or 'flag'
         this.touchStartTime = 0;
         this.touchStartPos = { x: 0, y: 0 };
         this.longPressTimer = null;
@@ -17,7 +16,6 @@ class MinesweeperGame {
         this.initializeElements();
         this.attachEventListeners();
         this.updateCustomConfigVisibility();
-        this.updateModeToggleButton();
     }
 
     initializeElements() {
@@ -32,7 +30,6 @@ class MinesweeperGame {
         this.minesLeft = document.getElementById('mines-left');
         this.gameTime = document.getElementById('game-time');
         this.gameBoard = document.getElementById('game-board');
-        this.modeToggleBtn = document.getElementById('mode-toggle-btn');
     }
 
     attachEventListeners() {
@@ -43,7 +40,6 @@ class MinesweeperGame {
 
         this.newGameBtn.addEventListener('click', () => this.createNewGame());
         this.restartBtn.addEventListener('click', () => this.restartGame());
-        this.modeToggleBtn.addEventListener('click', () => this.toggleMobileMode());
 
         // Prevent middle-click scroll behavior on the entire game board area
         document.addEventListener('mousedown', (e) => {
@@ -77,21 +73,7 @@ class MinesweeperGame {
         });
     }
 
-    toggleMobileMode() {
-        this.mobileMode = this.mobileMode === 'reveal' ? 'flag' : 'reveal';
-        this.updateModeToggleButton();
-    }
 
-    updateModeToggleButton() {
-        if (this.mobileMode === 'reveal') {
-            this.modeToggleBtn.innerHTML = '<span class="mode-icon">👆</span><span class="mode-text">Reveal Mode</span>';
-            this.modeToggleBtn.className = 'btn btn-mode reveal-mode';
-        } else {
-            this.modeToggleBtn.innerHTML = '<span class="mode-icon">🚩</span><span class="mode-text">Flag Mode</span>';
-            this.modeToggleBtn.className = 'btn btn-mode flag-mode';
-        }
-        this.modeToggleBtn.dataset.mode = this.mobileMode;
-    }
 
     updateCustomConfigVisibility() {
         const isCustom = this.difficultySelect.value === 'custom';
@@ -535,17 +517,9 @@ class MinesweeperGame {
     }
 
     handleSingleTap(row, col, cell) {
-        if (this.mobileMode === 'reveal') {
-            // Reveal mode - tap to reveal
-            if (!cell.isRevealed && !cell.isFlagged) {
-                this.makeMove(row, col, 'reveal');
-            }
-        } else {
-            // Flag mode - tap to flag/unflag
-            if (!cell.isRevealed) {
-                const action = cell.isFlagged ? 'unflag' : 'flag';
-                this.makeMove(row, col, action);
-            }
+        // Tap to reveal (long press handles flagging)
+        if (!cell.isRevealed && !cell.isFlagged) {
+            this.makeMove(row, col, 'reveal');
         }
     }
 
