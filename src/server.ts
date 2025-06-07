@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { Client } from '@temporalio/client';
 import { v4 as uuidv4 } from 'uuid';
-import { minesweeperWorkflow, makeMoveSignal, restartGameSignal, getGameStateQuery } from './workflows';
+import { minesweeperWorkflow, makeMoveUpdate, restartGameUpdate, getGameStateQuery } from './workflows';
 import { CreateGameRequest, MoveRequest, GameConfig } from './types';
 import path from 'path';
 
@@ -99,11 +99,8 @@ app.post('/api/games/:gameId/moves', async (req, res) => {
 
     const handle = client.workflow.getHandle(gameId);
     
-    // Send the move signal
-    await handle.signal(makeMoveSignal, moveRequest);
-    
-    // Get updated game state with retry
-    const gameState = await queryWithRetry(handle, getGameStateQuery);
+    // Execute move update and get the updated state directly
+    const gameState = await handle.executeUpdate(makeMoveUpdate, { args: [moveRequest] });
 
     res.json({ gameState });
   } catch (error) {
@@ -125,11 +122,8 @@ app.post('/api/games/:gameId/restart', async (req, res) => {
 
     const handle = client.workflow.getHandle(gameId);
     
-    // Send restart signal
-    await handle.signal(restartGameSignal, config);
-    
-    // Get updated game state with retry
-    const gameState = await queryWithRetry(handle, getGameStateQuery);
+    // Execute restart update and get the updated state directly
+    const gameState = await handle.executeUpdate(restartGameUpdate, { args: [config] });
 
     res.json({ gameState });
   } catch (error) {
