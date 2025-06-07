@@ -46,9 +46,22 @@ export interface GameConfig {
 
 export interface CreateGameRequest {
   config: GameConfig;
+  sessionId?: string;
 }
 
 export interface GameResponse {
   gameState: GameState;
   message?: string;
+}
+
+export interface GameResult {
+  id: string;
+  sessionId: string;
+  config: GameConfig;
+  status: GameStatus;
+  startTime: Date;
+  endTime: Date;
+  duration: number; // in seconds
+  cellsRevealed: number;
+  flagsUsed: number;
 } 

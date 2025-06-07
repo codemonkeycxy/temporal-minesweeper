@@ -4,6 +4,7 @@ class MinesweeperGame {
         this.gameState = null;
         this.gameStartTime = null;
         this.timerInterval = null;
+        this.sessionId = this.getOrCreateSessionId();
         
         // Mobile interaction state
         this.touchStartTime = 0;
@@ -19,6 +20,9 @@ class MinesweeperGame {
         
         // Try to resume existing game
         this.tryResumeGame();
+        
+        // Load game history
+        this.loadGameHistory();
     }
 
     initializeElements() {
@@ -87,8 +91,6 @@ class MinesweeperGame {
             }, 100);
         });
     }
-
-
 
     updateCustomConfigVisibility() {
         const isCustom = this.difficultySelect.value === 'custom';
@@ -200,7 +202,7 @@ class MinesweeperGame {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ config }),
+                body: JSON.stringify({ config, sessionId: this.sessionId }),
             });
 
             if (!response.ok) {
@@ -381,6 +383,8 @@ class MinesweeperGame {
         // Clear saved game if it's finished
         if (gameState.status === 'WON' || gameState.status === 'LOST' || gameState.status === 'CLOSED') {
             this.clearSavedGame();
+            // Reload game history when a game finishes
+            setTimeout(() => this.loadGameHistory(), 1000);
         }
     }
 
@@ -654,6 +658,123 @@ class MinesweeperGame {
         if (this.longPressTimer) {
             clearTimeout(this.longPressTimer);
             this.longPressTimer = null;
+        }
+    }
+
+    // Session ID management
+    getOrCreateSessionId() {
+        try {
+            let sessionId = sessionStorage.getItem('minesweeper-session-id');
+            if (!sessionId) {
+                sessionId = this.generateUUID();
+                sessionStorage.setItem('minesweeper-session-id', sessionId);
+            }
+            return sessionId;
+        } catch (error) {
+            console.warn('Failed to manage session ID:', error);
+            return this.generateUUID();
+        }
+    }
+
+    generateUUID() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0;
+            const v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+    // Load and display game history
+    async loadGameHistory() {
+        try {
+            const response = await fetch(`/api/sessions/${this.sessionId}/games`);
+            if (!response.ok) {
+                console.warn('Failed to load game history');
+                return;
+            }
+            
+            const data = await response.json();
+            this.displayGameHistory(data.games);
+        } catch (error) {
+            console.error('Error loading game history:', error);
+        }
+    }
+
+    displayGameHistory(games) {
+        let historyContainer = document.getElementById('game-history');
+        if (!historyContainer) {
+            // Create history container if it doesn't exist
+            historyContainer = document.createElement('div');
+            historyContainer.id = 'game-history';
+            historyContainer.className = 'game-history';
+            
+            const title = document.createElement('h3');
+            title.textContent = 'Game History';
+            historyContainer.appendChild(title);
+            
+            // Insert after the game board
+            const gameBoard = document.getElementById('game-board');
+            gameBoard.parentNode.insertBefore(historyContainer, gameBoard.nextSibling);
+        }
+
+        // Clear previous history (keep the title)
+        const title = historyContainer.querySelector('h3');
+        historyContainer.innerHTML = '';
+        historyContainer.appendChild(title);
+
+        if (games.length === 0) {
+            const noGames = document.createElement('p');
+            noGames.textContent = 'No completed games yet. Play some games to see your history!';
+            noGames.className = 'no-history';
+            historyContainer.appendChild(noGames);
+            return;
+        }
+
+        const historyList = document.createElement('div');
+        historyList.className = 'history-list';
+
+        games.forEach(game => {
+            const gameItem = document.createElement('div');
+            gameItem.className = `history-item ${game.status.toLowerCase()}`;
+            
+            const result = game.status === 'WON' ? '🏆 Won' : '💥 Lost';
+            const duration = this.formatDuration(game.duration);
+            const difficulty = this.getDifficultyName(game.config);
+            const date = new Date(game.endTime).toLocaleString();
+            
+            gameItem.innerHTML = `
+                <div class="history-main">
+                    <span class="history-result">${result}</span>
+                    <span class="history-difficulty">${difficulty}</span>
+                    <span class="history-duration">${duration}</span>
+                </div>
+                <div class="history-details">
+                    <span class="history-date">${date}</span>
+                    <span class="history-stats">Cells: ${game.cellsRevealed}, Flags: ${game.flagsUsed}</span>
+                </div>
+            `;
+            
+            historyList.appendChild(gameItem);
+        });
+
+        historyContainer.appendChild(historyList);
+    }
+
+    formatDuration(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    getDifficultyName(config) {
+        if (config.width === 9 && config.height === 9 && config.mineCount === 10) {
+            return 'Beginner';
+        } else if (config.width === 16 && config.height === 16 && config.mineCount === 40) {
+            return 'Intermediate';
+        } else if (config.width === 30 && config.height === 16 && config.mineCount === 99) {
+            return 'Expert';
+        } else {
+            return `Custom (${config.width}×${config.height}, ${config.mineCount} mines)`;
         }
     }
 }

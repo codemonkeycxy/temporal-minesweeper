@@ -3,7 +3,7 @@ import cors from 'cors';
 import { Client, Connection } from '@temporalio/client';
 import { v4 as uuidv4 } from 'uuid';
 import { minesweeperWorkflow, makeMoveUpdate, restartGameUpdate, getGameStateQuery } from './workflows';
-import { CreateGameRequest, MoveRequest, GameConfig } from './types';
+import { CreateGameRequest, MoveRequest, GameConfig, GameResult } from './types';
 import path from 'path';
 
 const app = express();
@@ -15,6 +15,12 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 let client: Client;
 
+// In-memory storage for completed games (session-based)
+const gameResults: Map<string, GameResult[]> = new Map();
+
+// Track active games with their session IDs
+const activeGames: Map<string, string> = new Map(); // gameId -> sessionId
+
 async function initializeClient() {
   const temporalAddress = process.env.TEMPORAL_ADDRESS || 'localhost:7233';
   const connection = await Connection.connect({ address: temporalAddress });
@@ -22,6 +28,20 @@ async function initializeClient() {
     connection,
   });
   console.log(`Connected to Temporal server at: ${temporalAddress}`);
+}
+
+// Function to save completed game result
+function saveGameResult(gameResult: GameResult) {
+  const sessionId = gameResult.sessionId;
+  if (!gameResults.has(sessionId)) {
+    gameResults.set(sessionId, []);
+  }
+  gameResults.get(sessionId)!.push(gameResult);
+  
+  // Remove from active games
+  activeGames.delete(gameResult.id);
+  
+  console.log(`Saved game result for session ${sessionId}: ${gameResult.status}`);
 }
 
 // Helper function to retry query with delays
@@ -43,7 +63,7 @@ async function queryWithRetry(handle: any, query: any, maxRetries = 5): Promise<
 // Create a new game
 app.post('/api/games', async (req, res) => {
   try {
-    const { config }: CreateGameRequest = req.body;
+    const { config, sessionId }: CreateGameRequest = req.body;
     
     // Validate config
     if (!config || !config.width || !config.height || !config.mineCount) {
@@ -55,6 +75,11 @@ app.post('/api/games', async (req, res) => {
     }
 
     const gameId = uuidv4();
+    
+    // Store the session ID for this game if provided
+    if (sessionId) {
+      activeGames.set(gameId, sessionId);
+    }
     
     // Start the workflow
     await client.workflow.start(minesweeperWorkflow, {
@@ -82,6 +107,33 @@ app.get('/api/games/:gameId', async (req, res) => {
     const handle = client.workflow.getHandle(gameId);
     const gameState = await queryWithRetry(handle, getGameStateQuery);
 
+    // Check if game just completed and save result
+    if ((gameState.status === 'WON' || gameState.status === 'LOST') && 
+        gameState.startTime && gameState.endTime && 
+        activeGames.has(gameId)) {
+      
+      const sessionId = activeGames.get(gameId)!;
+      const duration = Math.floor((new Date(gameState.endTime).getTime() - new Date(gameState.startTime).getTime()) / 1000);
+      
+      const gameResult: GameResult = {
+        id: gameId,
+        sessionId,
+        config: {
+          width: gameState.board.width,
+          height: gameState.board.height,
+          mineCount: gameState.board.mineCount
+        },
+        status: gameState.status,
+        startTime: new Date(gameState.startTime),
+        endTime: new Date(gameState.endTime),
+        duration,
+        cellsRevealed: gameState.cellsRevealed,
+        flagsUsed: gameState.flagsUsed
+      };
+      
+      saveGameResult(gameResult);
+    }
+
     res.json({ gameState });
   } catch (error) {
     console.error('Error getting game state:', error);
@@ -106,6 +158,33 @@ app.post('/api/games/:gameId/moves', async (req, res) => {
     
     // Execute move update and get the updated state directly
     const gameState = await handle.executeUpdate(makeMoveUpdate, { args: [moveRequest] });
+
+    // Check if game just completed and save result
+    if ((gameState.status === 'WON' || gameState.status === 'LOST') && 
+        gameState.startTime && gameState.endTime && 
+        activeGames.has(gameId)) {
+      
+      const sessionId = activeGames.get(gameId)!;
+      const duration = Math.floor((new Date(gameState.endTime).getTime() - new Date(gameState.startTime).getTime()) / 1000);
+      
+      const gameResult: GameResult = {
+        id: gameId,
+        sessionId,
+        config: {
+          width: gameState.board.width,
+          height: gameState.board.height,
+          mineCount: gameState.board.mineCount
+        },
+        status: gameState.status,
+        startTime: new Date(gameState.startTime),
+        endTime: new Date(gameState.endTime),
+        duration,
+        cellsRevealed: gameState.cellsRevealed,
+        flagsUsed: gameState.flagsUsed
+      };
+      
+      saveGameResult(gameResult);
+    }
 
     res.json({ gameState });
   } catch (error) {
@@ -134,6 +213,22 @@ app.post('/api/games/:gameId/restart', async (req, res) => {
   } catch (error) {
     console.error('Error restarting game:', error);
     res.status(500).json({ error: 'Failed to restart game' });
+  }
+});
+
+// Get game history for a session
+app.get('/api/sessions/:sessionId/games', (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const games = gameResults.get(sessionId) || [];
+    
+    // Sort by end time, most recent first
+    const sortedGames = games.sort((a, b) => b.endTime.getTime() - a.endTime.getTime());
+    
+    res.json({ games: sortedGames });
+  } catch (error) {
+    console.error('Error getting game history:', error);
+    res.status(500).json({ error: 'Failed to get game history' });
   }
 });
 
