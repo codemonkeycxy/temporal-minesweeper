@@ -18,7 +18,8 @@ export enum GameStatus {
   NOT_STARTED = 'NOT_STARTED',
   IN_PROGRESS = 'IN_PROGRESS',
   WON = 'WON',
-  LOST = 'LOST'
+  LOST = 'LOST',
+  CLOSED = 'CLOSED'
 }
 
 export interface GameState {

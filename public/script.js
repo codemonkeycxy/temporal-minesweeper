@@ -5,9 +5,19 @@ class MinesweeperGame {
         this.gameStartTime = null;
         this.timerInterval = null;
         
+        // Mobile interaction state
+        this.mobileMode = 'reveal'; // 'reveal' or 'flag'
+        this.touchStartTime = 0;
+        this.touchStartPos = { x: 0, y: 0 };
+        this.longPressTimer = null;
+        this.isLongPress = false;
+        this.lastTapTime = 0;
+        this.tapTimeout = null;
+        
         this.initializeElements();
         this.attachEventListeners();
         this.updateCustomConfigVisibility();
+        this.updateModeToggleButton();
     }
 
     initializeElements() {
@@ -22,6 +32,7 @@ class MinesweeperGame {
         this.minesLeft = document.getElementById('mines-left');
         this.gameTime = document.getElementById('game-time');
         this.gameBoard = document.getElementById('game-board');
+        this.modeToggleBtn = document.getElementById('mode-toggle-btn');
     }
 
     attachEventListeners() {
@@ -32,6 +43,54 @@ class MinesweeperGame {
 
         this.newGameBtn.addEventListener('click', () => this.createNewGame());
         this.restartBtn.addEventListener('click', () => this.restartGame());
+        this.modeToggleBtn.addEventListener('click', () => this.toggleMobileMode());
+
+        // Prevent middle-click scroll behavior on the entire game board area
+        document.addEventListener('mousedown', (e) => {
+            if (e.button === 1) {
+                const gameBoard = document.getElementById('game-board');
+                if (gameBoard && (gameBoard.contains(e.target) || e.target === gameBoard)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }
+        });
+
+        document.addEventListener('mouseup', (e) => {
+            if (e.button === 1) {
+                const gameBoard = document.getElementById('game-board');
+                if (gameBoard && (gameBoard.contains(e.target) || e.target === gameBoard)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }
+        });
+
+        document.addEventListener('auxclick', (e) => {
+            if (e.button === 1) {
+                const gameBoard = document.getElementById('game-board');
+                if (gameBoard && (gameBoard.contains(e.target) || e.target === gameBoard)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }
+        });
+    }
+
+    toggleMobileMode() {
+        this.mobileMode = this.mobileMode === 'reveal' ? 'flag' : 'reveal';
+        this.updateModeToggleButton();
+    }
+
+    updateModeToggleButton() {
+        if (this.mobileMode === 'reveal') {
+            this.modeToggleBtn.innerHTML = '<span class="mode-icon">👆</span><span class="mode-text">Reveal Mode</span>';
+            this.modeToggleBtn.className = 'btn btn-mode reveal-mode';
+        } else {
+            this.modeToggleBtn.innerHTML = '<span class="mode-icon">🚩</span><span class="mode-text">Flag Mode</span>';
+            this.modeToggleBtn.className = 'btn btn-mode flag-mode';
+        }
+        this.modeToggleBtn.dataset.mode = this.mobileMode;
     }
 
     updateCustomConfigVisibility() {
@@ -336,35 +395,165 @@ class MinesweeperGame {
                 }
 
                 // Add event listeners
-                cellElement.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    if (!cell.isRevealed && !cell.isFlagged) {
-                        this.makeMove(row, col, 'reveal');
-                    }
-                });
-
-                cellElement.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    if (!cell.isRevealed) {
-                        const action = cell.isFlagged ? 'unflag' : 'flag';
-                        this.makeMove(row, col, action);
-                    }
-                });
-
-                // Add middle-click for chord reveal on numbered cells
-                cellElement.addEventListener('auxclick', (e) => {
-                    e.preventDefault();
-                    if (e.button === 1 && cell.isRevealed && !cell.isMine && cell.neighborMines > 0) {
-                        // Middle click on revealed numbered cell - chord reveal
-                        this.makeMove(row, col, 'chord');
-                    }
-                });
+                this.addCellEventListeners(cellElement, row, col, cell);
 
                 boardContainer.appendChild(cellElement);
             }
         }
 
         this.gameBoard.appendChild(boardContainer);
+    }
+
+    addCellEventListeners(cellElement, row, col, cell) {
+        // Desktop mouse events
+        cellElement.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!cell.isRevealed && !cell.isFlagged) {
+                this.makeMove(row, col, 'reveal');
+            }
+        });
+
+        cellElement.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            if (!cell.isRevealed) {
+                const action = cell.isFlagged ? 'unflag' : 'flag';
+                this.makeMove(row, col, action);
+            }
+        });
+
+        // Add middle-click for chord reveal on numbered cells
+        cellElement.addEventListener('auxclick', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (e.button === 1 && cell.isRevealed && !cell.isMine && cell.neighborMines > 0) {
+                // Middle click on revealed numbered cell - chord reveal
+                this.makeMove(row, col, 'chord');
+            }
+        });
+
+        // Additional event handlers to prevent browser scroll on middle-click
+        cellElement.addEventListener('mousedown', (e) => {
+            if (e.button === 1) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+
+        cellElement.addEventListener('mouseup', (e) => {
+            if (e.button === 1) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+
+        // Mobile touch events
+        cellElement.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.handleTouchStart(e, row, col, cell);
+        });
+
+        cellElement.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            this.handleTouchEnd(e, row, col, cell);
+        });
+
+        cellElement.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            // Cancel long press if finger moves too much
+            const touch = e.touches[0];
+            const deltaX = Math.abs(touch.clientX - this.touchStartPos.x);
+            const deltaY = Math.abs(touch.clientY - this.touchStartPos.y);
+            if (deltaX > 10 || deltaY > 10) {
+                this.cancelLongPress();
+            }
+        });
+
+        cellElement.addEventListener('touchcancel', (e) => {
+            e.preventDefault();
+            this.cancelLongPress();
+        });
+    }
+
+    handleTouchStart(e, row, col, cell) {
+        const touch = e.touches[0];
+        this.touchStartTime = Date.now();
+        this.touchStartPos = { x: touch.clientX, y: touch.clientY };
+        this.isLongPress = false;
+
+        // Start long press timer (500ms)
+        this.longPressTimer = setTimeout(() => {
+            this.isLongPress = true;
+            // Long press action - always flag/unflag
+            if (!cell.isRevealed) {
+                const action = cell.isFlagged ? 'unflag' : 'flag';
+                this.makeMove(row, col, action);
+                // Haptic feedback if available
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(50);
+                }
+            }
+        }, 500);
+    }
+
+    handleTouchEnd(e, row, col, cell) {
+        this.cancelLongPress();
+
+        if (this.isLongPress) {
+            // Long press was handled in timer
+            return;
+        }
+
+        const touchDuration = Date.now() - this.touchStartTime;
+        if (touchDuration > 500) {
+            // This was a long press, ignore
+            return;
+        }
+
+        // Handle tap or double tap
+        const now = Date.now();
+        const timeSinceLastTap = now - this.lastTapTime;
+        
+        if (timeSinceLastTap < 300) {
+            // Double tap - chord reveal on numbered cells
+            if (this.tapTimeout) {
+                clearTimeout(this.tapTimeout);
+                this.tapTimeout = null;
+            }
+            
+            if (cell.isRevealed && !cell.isMine && cell.neighborMines > 0) {
+                this.makeMove(row, col, 'chord');
+            }
+            this.lastTapTime = 0; // Reset to prevent triple-tap issues
+        } else {
+            // Single tap - but wait to see if it becomes a double tap
+            this.lastTapTime = now;
+            this.tapTimeout = setTimeout(() => {
+                this.handleSingleTap(row, col, cell);
+                this.tapTimeout = null;
+            }, 300);
+        }
+    }
+
+    handleSingleTap(row, col, cell) {
+        if (this.mobileMode === 'reveal') {
+            // Reveal mode - tap to reveal
+            if (!cell.isRevealed && !cell.isFlagged) {
+                this.makeMove(row, col, 'reveal');
+            }
+        } else {
+            // Flag mode - tap to flag/unflag
+            if (!cell.isRevealed) {
+                const action = cell.isFlagged ? 'unflag' : 'flag';
+                this.makeMove(row, col, action);
+            }
+        }
+    }
+
+    cancelLongPress() {
+        if (this.longPressTimer) {
+            clearTimeout(this.longPressTimer);
+            this.longPressTimer = null;
+        }
     }
 }
 
