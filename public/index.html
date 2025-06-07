@@ -67,6 +67,30 @@
             </div>
         </div>
 
+        <div class="leaderboard-section">
+            <div class="leaderboard-header">
+                <h3>🏆 Leaderboard</h3>
+                <div class="leaderboard-controls">
+                    <select id="leaderboard-category">
+                        <option value="FASTEST_TIME">Fastest Times</option>
+                        <option value="MOST_WINS">Most Wins</option>
+                        <option value="BEST_WIN_RATE">Best Win Rate</option>
+                    </select>
+                    <select id="leaderboard-difficulty">
+                        <option value="">All Difficulties</option>
+                        <option value="BEGINNER">Beginner</option>
+                        <option value="INTERMEDIATE">Intermediate</option>
+                        <option value="EXPERT">Expert</option>
+                        <option value="CUSTOM">Custom</option>
+                    </select>
+                    <button id="refresh-leaderboard" class="btn btn-small">Refresh</button>
+                </div>
+            </div>
+            <div id="leaderboard-content" class="leaderboard-content">
+                <div class="loading">Loading leaderboard...</div>
+            </div>
+        </div>
+
         <div class="instructions">
             <h3>How to Play</h3>
             <div class="controls-section">

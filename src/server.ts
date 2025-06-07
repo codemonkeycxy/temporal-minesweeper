@@ -2,8 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import { Client, Connection } from '@temporalio/client';
 import { v4 as uuidv4 } from 'uuid';
-import { minesweeperWorkflow, makeMoveUpdate, restartGameUpdate, getGameStateQuery } from './workflows';
-import { CreateGameRequest, MoveRequest, GameConfig, GameResult } from './types';
+import { minesweeperWorkflow, makeMoveUpdate, restartGameUpdate, getGameStateQuery, leaderboardWorkflow, addGameResultSignal, getLeaderboardQuery, getPlayerStatsQuery } from './workflows';
+import { CreateGameRequest, MoveRequest, GameConfig, GameResult, LeaderboardQuery } from './types';
 import path from 'path';
 
 const app = express();
@@ -14,6 +14,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 
 let client: Client;
+const LEADERBOARD_WORKFLOW_ID = 'global-leaderboard';
 
 // In-memory storage for completed games (session-based)
 const gameResults: Map<string, GameResult[]> = new Map();
@@ -30,8 +31,30 @@ async function initializeClient() {
   console.log(`Connected to Temporal server at: ${temporalAddress}`);
 }
 
+async function initializeLeaderboard() {
+  try {
+    // Try to start the leaderboard workflow
+    await client.workflow.start(leaderboardWorkflow, {
+      args: [],
+      taskQueue: 'minesweeper-task-queue',
+      workflowId: LEADERBOARD_WORKFLOW_ID,
+    });
+    console.log('Started leaderboard workflow');
+  } catch (error: any) {
+    // If workflow already exists, that's fine
+    if (error.name === 'WorkflowExecutionAlreadyStartedError' || 
+        error.message?.includes('already started') ||
+        error.message?.includes('WorkflowExecutionAlreadyStarted')) {
+      console.log('Leaderboard workflow is already running');
+    } else {
+      console.error('Error initializing leaderboard:', error);
+      throw error;
+    }
+  }
+}
+
 // Function to save completed game result
-function saveGameResult(gameResult: GameResult) {
+async function saveGameResult(gameResult: GameResult) {
   const sessionId = gameResult.sessionId;
   if (!gameResults.has(sessionId)) {
     gameResults.set(sessionId, []);
@@ -40,6 +63,17 @@ function saveGameResult(gameResult: GameResult) {
   
   // Remove from active games
   activeGames.delete(gameResult.id);
+  
+  // Send to leaderboard workflow if the game was won
+  if (gameResult.status === 'WON') {
+    try {
+      const leaderboardHandle = client.workflow.getHandle(LEADERBOARD_WORKFLOW_ID);
+      await leaderboardHandle.signal(addGameResultSignal, gameResult);
+      console.log(`Sent game result to leaderboard for session ${sessionId}`);
+    } catch (error) {
+      console.error('Error sending game result to leaderboard:', error);
+    }
+  }
   
   console.log(`Saved game result for session ${sessionId}: ${gameResult.status}`);
 }
@@ -131,7 +165,7 @@ app.get('/api/games/:gameId', async (req, res) => {
         flagsUsed: gameState.flagsUsed
       };
       
-      saveGameResult(gameResult);
+      await saveGameResult(gameResult);
     }
 
     res.json({ gameState });
@@ -183,7 +217,7 @@ app.post('/api/games/:gameId/moves', async (req, res) => {
         flagsUsed: gameState.flagsUsed
       };
       
-      saveGameResult(gameResult);
+      await saveGameResult(gameResult);
     }
 
     res.json({ gameState });
@@ -232,6 +266,46 @@ app.get('/api/sessions/:sessionId/games', (req, res) => {
   }
 });
 
+// Get leaderboard
+app.get('/api/leaderboard', async (req, res) => {
+  try {
+    const { category = 'FASTEST_TIME', difficulty, limit = 10 } = req.query;
+    
+    const query: LeaderboardQuery = {
+      category: category as any,
+      difficulty: difficulty as any,
+      limit: parseInt(limit as string) || 10
+    };
+
+    const leaderboardHandle = client.workflow.getHandle(LEADERBOARD_WORKFLOW_ID);
+    const leaderboard = await leaderboardHandle.query(getLeaderboardQuery, query);
+    
+    res.json(leaderboard);
+  } catch (error) {
+    console.error('Error getting leaderboard:', error);
+    res.status(500).json({ error: 'Failed to get leaderboard' });
+  }
+});
+
+// Get player stats
+app.get('/api/players/:playerId/stats', async (req, res) => {
+  try {
+    const { playerId } = req.params;
+    
+    const leaderboardHandle = client.workflow.getHandle(LEADERBOARD_WORKFLOW_ID);
+    const stats = await leaderboardHandle.query(getPlayerStatsQuery, playerId);
+    
+    if (!stats) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
+    
+    res.json(stats);
+  } catch (error) {
+    console.error('Error getting player stats:', error);
+    res.status(500).json({ error: 'Failed to get player stats' });
+  }
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
@@ -245,6 +319,7 @@ app.get('/', (req, res) => {
 async function startServer() {
   try {
     await initializeClient();
+    await initializeLeaderboard();
     
     app.listen(port, () => {
       console.log(`Minesweeper server running on http://localhost:${port}`);

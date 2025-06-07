@@ -525,4 +525,164 @@ header p {
         flex-direction: column;
         gap: 0.25rem;
     }
+}
+
+/* Leaderboard styles */
+.leaderboard-section {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.leaderboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.leaderboard-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.4rem;
+}
+
+.leaderboard-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.leaderboard-controls select {
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    background: white;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 12px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    color: #333;
+}
+
+.btn-small:hover {
+    background: #e0e0e0;
+}
+
+.leaderboard-content {
+    min-height: 200px;
+}
+
+.loading {
+    text-align: center;
+    color: #666;
+    padding: 40px 0;
+    font-style: italic;
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+    padding: 12px 8px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.leaderboard-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+    position: sticky;
+    top: 0;
+}
+
+.leaderboard-table tr:hover {
+    background: #f8f9fa;
+}
+
+.leaderboard-rank {
+    width: 50px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.leaderboard-rank.gold { color: #ffd700; }
+.leaderboard-rank.silver { color: #c0c0c0; }
+.leaderboard-rank.bronze { color: #cd7f32; }
+
+.leaderboard-player {
+    font-weight: 500;
+}
+
+.leaderboard-value {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+}
+
+.leaderboard-difficulty {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.leaderboard-timestamp {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.no-leaderboard {
+    text-align: center;
+    color: #666;
+    padding: 40px 0;
+    font-style: italic;
+}
+
+/* Mobile responsive for leaderboard */
+@media (max-width: 768px) {
+    .leaderboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .leaderboard-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .leaderboard-table {
+        font-size: 14px;
+    }
+    
+    .leaderboard-table th,
+    .leaderboard-table td {
+        padding: 8px 4px;
+    }
+}
+
+@media (max-width: 480px) {
+    .leaderboard-table {
+        font-size: 12px;
+    }
+    
+    .leaderboard-table th,
+    .leaderboard-table td {
+        padding: 6px 2px;
+    }
+    
+    .leaderboard-timestamp {
+        display: none;
+    }
 } 

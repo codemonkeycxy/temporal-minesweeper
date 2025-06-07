@@ -23,6 +23,9 @@ class MinesweeperGame {
         
         // Load game history
         this.loadGameHistory();
+
+        // Initialize leaderboard
+        this.initializeLeaderboard();
     }
 
     initializeElements() {
@@ -385,6 +388,10 @@ class MinesweeperGame {
             this.clearSavedGame();
             // Reload game history when a game finishes
             setTimeout(() => this.loadGameHistory(), 1000);
+            // Refresh leaderboard if game was won
+            if (gameState.status === 'WON') {
+                setTimeout(() => this.loadLeaderboard(), 1500);
+            }
         }
     }
 
@@ -775,6 +782,143 @@ class MinesweeperGame {
             return 'Expert';
         } else {
             return `Custom (${config.width}×${config.height}, ${config.mineCount} mines)`;
+        }
+    }
+
+    // Leaderboard functionality
+    initializeLeaderboard() {
+        const categorySelect = document.getElementById('leaderboard-category');
+        const difficultySelect = document.getElementById('leaderboard-difficulty');
+        const refreshBtn = document.getElementById('refresh-leaderboard');
+
+        // Event listeners for leaderboard controls
+        categorySelect.addEventListener('change', () => this.loadLeaderboard());
+        difficultySelect.addEventListener('change', () => this.loadLeaderboard());
+        refreshBtn.addEventListener('click', () => this.loadLeaderboard());
+
+        // Load initial leaderboard
+        this.loadLeaderboard();
+    }
+
+    async loadLeaderboard() {
+        const categorySelect = document.getElementById('leaderboard-category');
+        const difficultySelect = document.getElementById('leaderboard-difficulty');
+        const content = document.getElementById('leaderboard-content');
+
+        // Show loading state
+        content.innerHTML = '<div class="loading">Loading leaderboard...</div>';
+
+        try {
+            const category = categorySelect.value;
+            const difficulty = difficultySelect.value;
+            const limit = 10;
+
+            const url = new URL('/api/leaderboard', window.location.origin);
+            url.searchParams.set('category', category);
+            url.searchParams.set('limit', limit);
+            if (difficulty) {
+                url.searchParams.set('difficulty', difficulty);
+            }
+
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error('Failed to load leaderboard');
+            }
+
+            const leaderboard = await response.json();
+            this.displayLeaderboard(leaderboard);
+
+        } catch (error) {
+            console.error('Error loading leaderboard:', error);
+            content.innerHTML = '<div class="no-leaderboard">Failed to load leaderboard. Please try again.</div>';
+        }
+    }
+
+    displayLeaderboard(leaderboard) {
+        const content = document.getElementById('leaderboard-content');
+
+        if (!leaderboard.entries || leaderboard.entries.length === 0) {
+            content.innerHTML = '<div class="no-leaderboard">No leaderboard entries yet. Play some games to see rankings!</div>';
+            return;
+        }
+
+        const table = document.createElement('table');
+        table.className = 'leaderboard-table';
+
+        // Create table header
+        const header = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        
+        let valueHeader = 'Score';
+        if (leaderboard.category === 'FASTEST_TIME') {
+            valueHeader = 'Time';
+        } else if (leaderboard.category === 'MOST_WINS') {
+            valueHeader = 'Wins';
+        } else if (leaderboard.category === 'BEST_WIN_RATE') {
+            valueHeader = 'Win Rate';
+        }
+
+        headerRow.innerHTML = `
+            <th class="leaderboard-rank">Rank</th>
+            <th class="leaderboard-player">Player</th>
+            <th class="leaderboard-value">${valueHeader}</th>
+            <th class="leaderboard-difficulty">Difficulty</th>
+            <th class="leaderboard-timestamp">Date</th>
+        `;
+        header.appendChild(headerRow);
+        table.appendChild(header);
+
+        // Create table body
+        const body = document.createElement('tbody');
+        leaderboard.entries.forEach((entry, index) => {
+            const row = document.createElement('tr');
+            
+            const rank = index + 1;
+            let rankClass = 'leaderboard-rank';
+            if (rank === 1) rankClass += ' gold';
+            else if (rank === 2) rankClass += ' silver';
+            else if (rank === 3) rankClass += ' bronze';
+
+            let valueDisplay = entry.value;
+            if (leaderboard.category === 'FASTEST_TIME') {
+                valueDisplay = this.formatDuration(entry.value);
+            } else if (leaderboard.category === 'BEST_WIN_RATE') {
+                valueDisplay = `${entry.value}%`;
+            }
+
+            const playerDisplay = entry.playerId.substring(0, 8) + '...'; // Show first 8 chars of session ID
+            const difficultyDisplay = this.getDifficultyDisplayName(entry.difficulty);
+            const dateDisplay = new Date(entry.timestamp).toLocaleDateString();
+
+            row.innerHTML = `
+                <td class="${rankClass}">${rank}</td>
+                <td class="leaderboard-player" title="${entry.playerId}">${playerDisplay}</td>
+                <td class="leaderboard-value">${valueDisplay}</td>
+                <td class="leaderboard-difficulty">${difficultyDisplay}</td>
+                <td class="leaderboard-timestamp">${dateDisplay}</td>
+            `;
+
+            // Highlight current player's entries
+            if (entry.playerId === this.sessionId) {
+                row.style.backgroundColor = '#e8f5e8';
+                row.style.fontWeight = 'bold';
+            }
+
+            body.appendChild(row);
+        });
+
+        table.appendChild(body);
+        content.innerHTML = '';
+        content.appendChild(table);
+    }
+
+    getDifficultyDisplayName(difficulty) {
+        switch (difficulty) {
+            case 'BEGINNER': return 'Beginner';
+            case 'INTERMEDIATE': return 'Intermediate';
+            case 'EXPERT': return 'Expert';
+            case 'CUSTOM': return 'Custom';
+            default: return difficulty;
         }
     }
 }
