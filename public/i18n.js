@@ -2,7 +2,7 @@ class I18n {
     constructor() {
         this.currentLanguage = 'en';
         this.translations = {};
-        this.supportedLanguages = ['en', 'es', 'fr', 'de', 'zh'];
+        this.supportedLanguages = ['en', 'es', 'fr', 'de', 'zh', 'tr'];
         this.fallbackLanguage = 'en';
     }
 

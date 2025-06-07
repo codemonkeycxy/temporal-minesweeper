@@ -1,0 +1,76 @@
+{
+  "app": {
+    "title": "Temporal Mayın Tarlası",
+    "subtitle": "Temporal İş Akışları ile Güçlendirilmiş"
+  },
+  "game": {
+    "difficulty": "Zorluk:",
+    "beginner": "Başlangıç (9x9, 10 mayın)",
+    "intermediate": "Orta (16x16, 40 mayın)",
+    "expert": "Uzman (30x16, 99 mayın)",
+    "custom": "Özel",
+    "width": "Genişlik:",
+    "height": "Yükseklik:",
+    "mines": "Mayınlar:",
+    "newGame": "Yeni Oyun",
+    "resumeGame": "Oyunu Devam Ettir",
+    "restart": "Yeniden Başlat",
+    "status": "Durum:",
+    "minesLeft": "Kalan Mayın:",
+    "time": "Süre:",
+    "clickToStart": "Oynamaya başlamak için \"Yeni Oyun\"a tıklayın!",
+    "initializing": "Oyun başlatılıyor...",
+    "gameOver": "Oyun Bitti",
+    "youWon": "Kazandınız!",
+    "youLost": "Kaybettiniz!",
+    "notStarted": "Başlamadı",
+    "inProgress": "Devam Ediyor",
+    "won": "Kazanıldı",
+    "lost": "Kaybedildi"
+  },
+  "leaderboard": {
+    "title": "🏆 Lider Tablosu",
+    "fastestTimes": "En Hızlı Süreler",
+    "mostWins": "En Çok Galibiyet",
+    "bestWinRate": "En İyi Galibiyet Oranı",
+    "allDifficulties": "Tüm Zorluklar",
+    "refresh": "Yenile",
+    "loading": "Lider tablosu yükleniyor...",
+    "noData": "Veri yok",
+    "rank": "Sıra",
+    "player": "Oyuncu",
+    "value": "Değer",
+    "games": "Oyunlar"
+  },
+  "instructions": {
+    "howToPlay": "Nasıl Oynanır",
+    "desktopControls": "Masaüstü Kontrolleri:",
+    "leftClick": "Sol tık - Bir hücreyi aç",
+    "rightClick": "Sağ tık - Bir hücreyi mayın olarak işaretle/işareti kaldır",
+    "doubleClick": "Çift tık - Komşu hücreleri toplu aç (bayraklar sayıyla eşleştiğinde)",
+    "mobileControls": "Mobil Kontroller:",
+    "tap": "Dokunma - Bir hücreyi aç",
+    "longPress": "Uzun basma - Bir hücreyi mayın olarak işaretle/işareti kaldır",
+    "doubleTap": "Çift dokunma - Komşu hücreleri toplu aç (bayraklar sayıyla eşleştiğinde)",
+    "rules": "Kurallar:",
+    "goal": "Amaç: Mayın içermeyen tüm hücreleri açın",
+    "numbers": "Sayılar, o hücreye komşu kaç mayın olduğunu gösterir",
+    "flags": "Bayraklar, mayın içerdiğini düşündüğünüz hücreleri işaretlemenize yardımcı olur"
+  },
+  "errors": {
+    "tooManyMines": "Tahta boyutuna göre çok fazla mayın!",
+    "failedToCreate": "Oyun oluşturulamadı:",
+    "failedToRestart": "Oyun yeniden başlatılamadı:",
+    "failedToMove": "Hamle yapılamadı:",
+    "gameNotFound": "Oyun bulunamadı",
+    "invalidConfig": "Geçersiz oyun yapılandırması",
+    "initTimeout": "Oyun başlatma zaman aşımına uğradı"
+  },
+  "gameHistory": {
+    "title": "Oyun Geçmişi",
+    "noGames": "Henüz tamamlanmış oyun yok. Geçmişinizi görmek için oyunlar oynayın!"
+  },
+  "leaderboardMessages": {
+    "noEntries": "Henüz lider tablosu girişi yok. Sıralamaları görmek için oyunlar oynayın!"
+  }
+} 
