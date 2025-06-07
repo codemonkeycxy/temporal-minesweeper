@@ -394,7 +394,7 @@ export async function leaderboardWorkflow(): Promise<void> {
 
   // Query handler for getting leaderboard
   setHandler(getLeaderboardQuery, (query: LeaderboardQuery): LeaderboardResponse => {
-    const { category, difficulty, limit = 10 } = query;
+    const { category = LeaderboardCategory.FASTEST_TIME, difficulty, limit = 10 } = query;
     const key = getLeaderboardKey(category, difficulty);
     const entries = leaderboards[key] || [];
     
