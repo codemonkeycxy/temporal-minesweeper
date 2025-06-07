@@ -51,37 +51,6 @@ class MinesweeperGame {
         this.newGameBtn.addEventListener('click', () => this.createNewGame());
         this.restartBtn.addEventListener('click', () => this.restartGame());
 
-        // Prevent middle-click scroll behavior on the entire game board area
-        document.addEventListener('mousedown', (e) => {
-            if (e.button === 1) {
-                const gameBoard = document.getElementById('game-board');
-                if (gameBoard && (gameBoard.contains(e.target) || e.target === gameBoard)) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            }
-        });
-
-        document.addEventListener('mouseup', (e) => {
-            if (e.button === 1) {
-                const gameBoard = document.getElementById('game-board');
-                if (gameBoard && (gameBoard.contains(e.target) || e.target === gameBoard)) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            }
-        });
-
-        document.addEventListener('auxclick', (e) => {
-            if (e.button === 1) {
-                const gameBoard = document.getElementById('game-board');
-                if (gameBoard && (gameBoard.contains(e.target) || e.target === gameBoard)) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            }
-        });
-
         // Handle window resize for responsive board sizing
         let resizeTimeout;
         window.addEventListener('resize', () => {
@@ -541,28 +510,13 @@ class MinesweeperGame {
             }
         });
 
-        // Add middle-click for chord reveal on numbered cells
-        cellElement.addEventListener('auxclick', (e) => {
+        // Add double-click for chord reveal on numbered cells
+        cellElement.addEventListener('dblclick', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            if (e.button === 1 && cell.isRevealed && !cell.isMine && cell.neighborMines > 0) {
-                // Middle click on revealed numbered cell - chord reveal
+            if (cell.isRevealed && !cell.isMine && cell.neighborMines > 0) {
+                // Double click on revealed numbered cell - chord reveal
                 this.makeMove(row, col, 'chord');
-            }
-        });
-
-        // Additional event handlers to prevent browser scroll on middle-click
-        cellElement.addEventListener('mousedown', (e) => {
-            if (e.button === 1) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-        });
-
-        cellElement.addEventListener('mouseup', (e) => {
-            if (e.button === 1) {
-                e.preventDefault();
-                e.stopPropagation();
             }
         });
 
