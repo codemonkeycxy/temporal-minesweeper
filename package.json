@@ -8,7 +8,10 @@
     "start": "node dist/server.js",
     "dev": "concurrently \"tsc --watch\" \"nodemon dist/server.js\"",
     "worker": "node dist/worker.js",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "docker:build": "docker build -t temporal-minesweeper .",
+    "docker:run": "docker run -p 3000:3000 -p 8233:8233 temporal-minesweeper",
+    "deploy:test": "bash deploy-local.sh"
   },
   "dependencies": {
     "@temporalio/activity": "^1.8.0",

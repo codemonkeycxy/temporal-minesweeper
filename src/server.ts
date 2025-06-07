@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { Client } from '@temporalio/client';
+import { Client, Connection } from '@temporalio/client';
 import { v4 as uuidv4 } from 'uuid';
 import { minesweeperWorkflow, makeMoveUpdate, restartGameUpdate, getGameStateQuery } from './workflows';
 import { CreateGameRequest, MoveRequest, GameConfig } from './types';
@@ -16,7 +16,12 @@ app.use(express.static(path.join(__dirname, '../public')));
 let client: Client;
 
 async function initializeClient() {
-  client = new Client();
+  const temporalAddress = process.env.TEMPORAL_ADDRESS || 'localhost:7233';
+  const connection = await Connection.connect({ address: temporalAddress });
+  client = new Client({
+    connection,
+  });
+  console.log(`Connected to Temporal server at: ${temporalAddress}`);
 }
 
 // Helper function to retry query with delays
