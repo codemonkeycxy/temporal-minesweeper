@@ -129,7 +129,7 @@ header p {
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     margin-bottom: 20px;
-    display: flex;
+    display: none; /* Hidden by default on desktop */
     justify-content: center;
     align-items: center;
 }
@@ -397,6 +397,7 @@ header p {
     }
     
     .mobile-controls {
+        display: flex; /* Show on mobile devices */
         padding: 12px 15px;
     }
     
