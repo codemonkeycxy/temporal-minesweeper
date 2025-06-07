@@ -16,6 +16,9 @@ class MinesweeperGame {
         this.initializeElements();
         this.attachEventListeners();
         this.updateCustomConfigVisibility();
+        
+        // Try to resume existing game
+        this.tryResumeGame();
     }
 
     initializeElements() {
@@ -71,6 +74,18 @@ class MinesweeperGame {
                 }
             }
         });
+
+        // Handle window resize for responsive board sizing
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            // Debounce resize events to avoid excessive calculations
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                if (this.gameState && this.gameState.board) {
+                    this.renderBoard();
+                }
+            }, 100);
+        });
     }
 
 
@@ -78,6 +93,68 @@ class MinesweeperGame {
     updateCustomConfigVisibility() {
         const isCustom = this.difficultySelect.value === 'custom';
         this.customConfig.style.display = isCustom ? 'flex' : 'none';
+    }
+
+    // localStorage management for game resuming
+    saveGameId(gameId) {
+        try {
+            localStorage.setItem('minesweeper-current-game', gameId);
+        } catch (error) {
+            console.warn('Failed to save game ID to localStorage:', error);
+        }
+    }
+
+    getSavedGameId() {
+        try {
+            return localStorage.getItem('minesweeper-current-game');
+        } catch (error) {
+            console.warn('Failed to get saved game ID from localStorage:', error);
+            return null;
+        }
+    }
+
+    clearSavedGame() {
+        try {
+            localStorage.removeItem('minesweeper-current-game');
+        } catch (error) {
+            console.warn('Failed to clear saved game from localStorage:', error);
+        }
+    }
+
+    async tryResumeGame() {
+        const savedGameId = this.getSavedGameId();
+        if (!savedGameId) {
+            return; // No saved game
+        }
+
+        try {
+            // Try to load the saved game
+            const response = await fetch(`/api/games/${savedGameId}`);
+            if (!response.ok) {
+                // Game no longer exists, clear it
+                this.clearSavedGame();
+                return;
+            }
+
+            const data = await response.json();
+            const gameState = data.gameState;
+
+            // Check if game is still resumable (not closed)
+            if (gameState.status === 'CLOSED') {
+                this.clearSavedGame();
+                return;
+            }
+
+            // Resume the game
+            this.gameId = savedGameId;
+            this.updateGameState(gameState);
+            this.restartBtn.disabled = false;
+            
+            console.log('Successfully resumed game:', savedGameId);
+        } catch (error) {
+            console.warn('Failed to resume saved game:', error);
+            this.clearSavedGame();
+        }
     }
 
     updateCustomInputs() {
@@ -107,6 +184,9 @@ class MinesweeperGame {
         try {
             this.newGameBtn.disabled = true;
             
+            // Clear any previously saved game since we're starting fresh
+            this.clearSavedGame();
+            
             const config = this.getGameConfig();
             
             // Validate config
@@ -130,6 +210,9 @@ class MinesweeperGame {
 
             const data = await response.json();
             this.gameId = data.gameState.id;
+            
+            // Save the new game ID for resuming
+            this.saveGameId(this.gameId);
             
             // Poll until the game state is fully initialized
             await this.waitForGameInitialization();
@@ -201,6 +284,10 @@ class MinesweeperGame {
             }
 
             const data = await response.json();
+            
+            // Save the game ID again since we have a fresh, resumable game
+            this.saveGameId(this.gameId);
+            
             this.updateGameState(data.gameState);
             
         } catch (error) {
@@ -290,6 +377,11 @@ class MinesweeperGame {
         this.updateUI();
         this.renderBoard();
         this.updateTimer();
+        
+        // Clear saved game if it's finished
+        if (gameState.status === 'WON' || gameState.status === 'LOST' || gameState.status === 'CLOSED') {
+            this.clearSavedGame();
+        }
     }
 
     updateUI() {
@@ -329,6 +421,32 @@ class MinesweeperGame {
         }
     }
 
+    calculateResponsiveCellSize(boardWidth, boardHeight) {
+        // Get available width for the board
+        const gameBoard = this.gameBoard;
+        const gameBoardRect = gameBoard.getBoundingClientRect();
+        const availableWidth = gameBoardRect.width - 40; // Account for padding
+        const availableHeight = window.innerHeight * 0.6; // Use max 60% of viewport height
+        
+        // Calculate cell size based on available space
+        const maxCellWidthFromWidth = Math.floor(availableWidth / boardWidth);
+        const maxCellHeightFromHeight = Math.floor(availableHeight / boardHeight);
+        
+        // Use the smaller dimension to ensure the board fits
+        let cellSize = Math.min(maxCellWidthFromWidth, maxCellHeightFromHeight);
+        
+        // Set reasonable min/max cell sizes
+        const minCellSize = 20; // Minimum for usability
+        const maxCellSize = 35; // Maximum for desktop
+        
+        cellSize = Math.max(minCellSize, Math.min(maxCellSize, cellSize));
+        
+        // Adjust font size based on cell size
+        const fontSize = Math.max(10, Math.floor(cellSize * 0.4));
+        
+        return { cellSize, fontSize };
+    }
+
     renderBoard() {
         if (!this.gameState || !this.gameState.board) {
             return;
@@ -346,11 +464,15 @@ class MinesweeperGame {
         // Clear previous board
         this.gameBoard.innerHTML = '';
 
+        // Calculate responsive cell size
+        const { cellSize, fontSize } = this.calculateResponsiveCellSize(board.width, board.height);
+
         // Create board container
         const boardContainer = document.createElement('div');
         boardContainer.className = 'board';
-        boardContainer.style.gridTemplateColumns = `repeat(${board.width}, 1fr)`;
-        boardContainer.style.gridTemplateRows = `repeat(${board.height}, 1fr)`;
+        boardContainer.style.gridTemplateColumns = `repeat(${board.width}, ${cellSize}px)`;
+        boardContainer.style.gridTemplateRows = `repeat(${board.height}, ${cellSize}px)`;
+        boardContainer.style.gap = '1px';
 
         // Create cells
         for (let row = 0; row < board.height; row++) {
@@ -360,6 +482,11 @@ class MinesweeperGame {
                 cellElement.className = 'cell';
                 cellElement.dataset.row = row;
                 cellElement.dataset.col = col;
+                
+                // Apply responsive sizing
+                cellElement.style.width = `${cellSize}px`;
+                cellElement.style.height = `${cellSize}px`;
+                cellElement.style.fontSize = `${fontSize}px`;
 
                 // Set cell content and classes
                 if (cell.isRevealed) {

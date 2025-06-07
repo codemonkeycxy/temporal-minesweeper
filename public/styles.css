@@ -184,6 +184,8 @@ header p {
     display: flex;
     justify-content: center;
     min-height: 300px;
+    overflow-x: auto;
+    /* Allow horizontal scrolling as fallback */
 }
 
 .no-game {
@@ -201,6 +203,10 @@ header p {
     border: 2px solid #999;
     border-radius: 5px;
     padding: 1px;
+    margin: 0 auto;
+    /* Ensure board is centered and doesn't exceed screen width */
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .cell {
@@ -339,29 +345,22 @@ header p {
         justify-content: center;
     }
     
-
-    
     .game-info {
         flex-direction: column;
         text-align: center;
         gap: 10px;
     }
     
-    .cell {
-        width: 32px;
-        height: 32px;
-        font-size: 14px;
-        /* Larger touch targets for mobile */
+    .game-board {
+        padding: 10px;
+        overflow-x: auto;
     }
     
     .board {
-        gap: 2px;
-        padding: 2px;
-    }
-    
-    .game-board {
-        padding: 15px;
-        overflow-x: auto;
+        gap: 1px;
+        padding: 1px;
+        /* Allow board to scale down */
+        max-width: calc(100vw - 40px);
     }
     
     .instructions {
@@ -379,11 +378,23 @@ header p {
         font-size: 1.8rem;
     }
     
-    .cell {
-        width: 28px;
-        height: 28px;
-        font-size: 12px;
+    .game-board {
+        padding: 5px;
+        /* Allow horizontal scrolling if needed on very small screens */
+        overflow-x: auto;
+        overflow-y: visible;
     }
     
-
+    .board {
+        /* Ensure board fits on very small screens */
+        max-width: calc(100vw - 20px);
+        /* Add min-width to prevent cells from becoming too small */
+        min-width: fit-content;
+    }
+    
+    /* Ensure minimum touch target size for accessibility */
+    .cell {
+        min-width: 20px !important;
+        min-height: 20px !important;
+    }
 } 
